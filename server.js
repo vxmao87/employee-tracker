@@ -18,7 +18,7 @@ var connection = mysql.createConnection({
 
 const question = [
     {
-        type: "checkbox",
+        type: "list",
         name: "choice",
         message: "What would you like to do today?",
         choices: [
@@ -32,11 +32,14 @@ const question = [
             "View All Roles",
             "Add Role",
             "Remove Role",
+            "View All Departments",   
+            "Add Department",
+            "Remove Department",
+            "View Department Budget",
             "Exit"
         ]
     }
 ];
-
 
 connection.connect(function(err) {
     if (err) throw err;
@@ -48,7 +51,7 @@ function askQuestions() {
     inquirer.prompt(question).then(function(answer) {
         switch(answer.choice) {
             case "View All Employees":
-                // Placeholder
+                askQuestions();
                 break;
             case "View All Employees by Department":
                 // Placeholder
@@ -77,7 +80,20 @@ function askQuestions() {
             case "Remove Role":
                 // Placeholder
                 break;
+            case "View All Departments":
+                // Placeholder
+                break;
+            case "Add Department":
+                // Placeholder
+                break;
+            case "Remove Department":
+                // Placeholder
+                break;
+            case "View Department Budget":
+                // Placeholder
+                break;
             case "Exit":
+                console.log("Goodbye! See you again soon!");
                 connection.end();
                 break;
         }
