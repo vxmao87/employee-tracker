@@ -1,6 +1,8 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 const cTable = require("console.table");
+const create = require("./Assets/data/create.js");
+require("dotenv").config();
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -12,7 +14,7 @@ var connection = mysql.createConnection({
     user: "root",
   
     // Your password
-    password: "",
+    password: process.env.MYSQL_PASSWORD,
     database: "employee_trackerDB"
 });
 
@@ -84,6 +86,8 @@ function askQuestions() {
                 // Placeholder
                 break;
             case "Add Department":
+                create.createDept();
+                askQuestions();
                 // Placeholder
                 break;
             case "Remove Department":
@@ -99,3 +103,5 @@ function askQuestions() {
         }
     });
 }
+
+module.exports = askQuestions;
