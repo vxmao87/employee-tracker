@@ -50,71 +50,41 @@ const createDeptQs = [
     },
 ];
 
-const createRoleQs = [
-    {
-        type: "input",
-        name: "roleName",
-        message: "What would you like to name the new role?"
-    },
-    {
-        type: "input",
-        name: "salary",
-        message: "What is the salary of this role?"
-    },
-    {
-        type: "list",
-        name: "deptName",
-        message: "Which department will this new role be a part of?",
-        choices: function() {
-            var choiceArray = [];
-            let query = "SELECT name FROM department;";
-            connection.query(query, function(err, res) {
-                if(err) throw err;
-                for(var i = 0; i < res.length; i++) {
-                    choiceArray.push(res[i].name);
-                }
-            });
-            return choiceArray;
-        }
-    }
-];
-
-function showTheData() {
-    var choiceArray = [];
-    let query = "SELECT name FROM department;";
-    connection.query(query, function(err, res) {
-        if(err) throw err;
-        for(var i = 0; i < res.length; i++) {
-            choiceArray.push(res[i].name);
-        }
-        console.log(choiceArray);
-    });
-    return choiceArray;
-}
-
-const createEmployeeQs = [
-    {
-        type: "input",
-        name: "firstName",
-        message: "What is the employee's first name?"
-    },
-    {
-        type: "input",
-        name: "lastName",
-        message: "What is the employee's last name?"
-    },
-    {
-        type: "input",
-        name: "role",
-        message: "what role would you like to assign this employee?"
-    }
-];
+// const createEmployeeQs = [
+//     {
+//         type: "input",
+//         name: "firstName",
+//         message: "What is the employee's first name?"
+//     },
+//     {
+//         type: "input",
+//         name: "lastName",
+//         message: "What is the employee's last name?"
+//     },
+//     {
+//         type: "input",
+//         name: "role",
+//         message: "what role would you like to assign this employee?"
+//     }
+// ];
 
 connection.connect(function(err) {
     if (err) throw err;
     console.log("Welcome!");
     askQuestions();
 });
+
+function renderChoices(cb) {
+    let query = "SELECT name FROM department;";
+    connection.query(query, function(err, res) {
+        if(err) throw err;
+        var choiceArray = [];
+        for(var i = 0; i < res.length; i++) {
+            choiceArray.push(res[i].name);
+        }
+        cb(choiceArray);
+    });
+}
 
 function askQuestions() {
     inquirer.prompt(mainMenu).then(function(answer) {
@@ -136,7 +106,6 @@ function askQuestions() {
                 break;
             case "Update Employee Role":
                  // Placeholder
-                 console.log(showTheData());
                 break;
             case "Update Employee Manager":
                 // Placeholder
@@ -184,12 +153,34 @@ function create(answer) {
             });
         });
     } else if(answer === "Role") {
-        inquirer.prompt(createRoleQs).then(function(answer) {
-            let query = `INSERT INTO role (title, salary, department_id) VALUES ("${answer.roleName}", ${answer.salary}, ${answer.deptName});`;
-            connection.query(query, function(err, res) {
-                if(err) throw err;
-                askQuestions();
+        renderChoices(function(result) {
+            inquirer.prompt([
+                {
+                    type: "list",
+                    name: "deptName",
+                    message: "Which department will this new role be a part of?",
+                    choices: result
+                },
+                {
+                    type: "input",
+                    name: "roleName",
+                    message: "What would you like to name the new role?"
+                },
+                {
+                    type: "input",
+                    name: "salary",
+                    message: "What is the salary of this role?"
+                }
+            ]
+            ).then(function(answer) {
+                let query = `INSERT INTO role (title, salary, department_id) VALUES ("${answer.roleName}", ${answer.salary}, ${answer.deptName});`;
+                connection.query(query, function(err, res) {
+                    if(err) throw err;
+                    askQuestions();
+                });
             });
         });
+    } else if(answer === "Employee") {
+        
     }
 }
