@@ -1,5 +1,3 @@
-const inquirier = require("inquirer");
-
 const createDeptQs = [
     {
         type: "input",
@@ -39,19 +37,11 @@ const createEmployeeQs = [
     }
 ];
 
-function createDept() {
-    inquirier.prompt(createDeptQs).then(function(answer) {
-        var query = "INSERT INTO department (name) VALUES (?)";
-        connection.query(query, [answer.deptName], function(err, res) {
-            if(err) throw err;
-        });
-    });
-}
+// function createRole() {
 
-function createRole() {
+// }
 
-}
+// function createEmployee() {
 
-function createEmployee() {
+// }
 
-}
