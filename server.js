@@ -46,59 +46,27 @@ const createDeptQs = [
     },
 ];
 
-// const createEmployeeQs = [
-//     {
-//         type: "input",
-//         name: "firstName",
-//         message: "What is the employee's first name?"
-//     },
-//     {
-//         type: "input",
-//         name: "lastName",
-//         message: "What is the employee's last name?"
-//     },
-//     {
-//         type: "input",
-//         name: "role",
-//         message: "what role would you like to assign this employee?"
-//     }
-// ];
-
 connection.connect(function(err) {
     if (err) throw err;
     console.log("Welcome!");
     askQuestions();
 });
 
-// function renderChoices(cb) {
-//     let query = "SELECT id, name FROM department;";
-//     connection.query(query, function(err, res) {
-//         if(err) throw err;
-//         console.log(res);
-//         var choiceArray = [];
-//         for(var i = 0; i < res.length; i++) {
-//             choiceArray.push(
-//                 {id: res[i].id, name: res[i].name});
-//         }
-//         cb(choiceArray);
-//     });
-// }
-
 function askQuestions() {
     inquirer.prompt(mainMenu).then(function(answer) {
         switch(answer.choice) {
             case "View All Employees":
-                askQuestions();
+                view("Employee");
+                break;
+            case "View All Roles":
+                view("Role");
+                break;
+            case "View All Departments":
+                view("Department");
                 break;
             case "View All Employees by Department":
                 // Placeholder
-                break;
-            case "View All Roles":
-                // Placeholder
-                break;
-            case "View All Departments":
-                // Placeholder
-                break;                
+                break;                  
             case "Add Employee":
                 add("Employee");
                 break;
@@ -136,37 +104,6 @@ function add(answer) {
             });
         });
     } else if(answer === "Role") {
-        // renderChoices(function(result) {
-        //     console.log(result);
-        //     inquirer.prompt([
-        //         {
-        //             type: "list",
-        //             name: "deptName",
-        //             message: "Which department will this new role be a part of?",
-        //             choices: result
-        //         },
-        //         {
-        //             type: "input",
-        //             name: "roleName",
-        //             message: "What would you like to name the new role?"
-        //         },
-        //         {
-        //             type: "input",
-        //             name: "salary",
-        //             message: "What is the salary of this role?"
-        //         }
-        //     ]
-        //     ).then(function(answer) {
-        //         console.log(answer);
-        //         let query = 
-        //         `INSERT INTO role (title, salary, department_id) 
-        //         VALUES ("${answer.roleName}", ${answer.salary}, ${answer.deptName.index});`;
-        //         connection.query(query, function(err, res) {
-        //             if(err) throw err;
-        //             askQuestions();
-        //         });
-        //     });
-        // });
         let query = `SELECT id, name FROM department`;
         connection.query(query, function(err, res) {
             if(err) throw err;
@@ -230,10 +167,51 @@ function add(answer) {
                             id: role.id
                         }
                     })
+                },
+                {
+                    type: "input",
+                    name: "manager",
+                    message: "Who would you like to assign as this employee's manager?"
                 }
             ]).then(function(answer) {
-
+                connection.query("INSERT INTO employee SET ?",
+                {
+                    first_name: answer.firstName,
+                    last_name: answer.lastName,
+                    role_id: answer.role,
+                    manager_id: answer.manager
+                }, 
+                function(err, res) {
+                    if (err) throw err;
+                    askQuestions();
+                })
             });
+        });
+    }
+}
+
+function view(answer) {
+    if(answer === "Department") {
+        connection.query("SELECT id, name FROM department", function(err, res) {
+            if (err) throw err;
+            console.table(res);
+            askQuestions();
+        });
+    } else if(answer === "Role") {
+        var query = "SELECT role.id, role.title, role.salary FROM role ";
+        query += "LEFT JOIN department ON role.department_id = department.id";
+        connection.query(query, function(err, res) {
+            if (err) throw err;
+            console.table(res);
+            askQuestions();
+        });
+    } else if(answer === "Employee") {
+        var query = "SELECT employee.id, employee.first_name, employee.last_name, employee.role_id FROM employee ";
+        query += "LEFT JOIN role ON employee.role_id = role.id ";
+        connection.query(query, function(err, res) {
+            if (err) throw err;
+            console.table(res);
+            askQuestions();
         });
     }
 }
