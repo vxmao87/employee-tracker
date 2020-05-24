@@ -26,16 +26,12 @@ const mainMenu = [
             "View All Employees",
             "View All Employees by Department",
             "View All Employees by Manager",
+            "View All Departments",
+            "View All Roles",               
             "Add Employee",
-            "Remove Employee",
-            "Update Employee Role",
-            "Update Employee Manager",
-            "View All Roles",
             "Add Role",
-            "Remove Role",
-            "View All Departments",   
-            "Add Department",
-            "Remove Department",
+            "Add Department",            
+            "Update Employee Role",
             "View Department Budget",
             "Exit"
         ]
@@ -75,12 +71,14 @@ connection.connect(function(err) {
 });
 
 function renderChoices(cb) {
-    let query = "SELECT name FROM department;";
+    let query = "SELECT id, name FROM department;";
     connection.query(query, function(err, res) {
         if(err) throw err;
+        console.log(res);
         var choiceArray = [];
         for(var i = 0; i < res.length; i++) {
-            choiceArray.push(res[i].name);
+            choiceArray.push(
+                {id: res[i].id, name: res[i].name});
         }
         cb(choiceArray);
     });
@@ -95,41 +93,29 @@ function askQuestions() {
             case "View All Employees by Department":
                 // Placeholder
                 break;
-            case "View All Employees by Manager":
-                // Placeholder
-                break;
-            case "Add Employee":
-                create("Employee");
-                break;
-            case "Remove Employee":
-                // Placeholder
-                break;
-            case "Update Employee Role":
-                 // Placeholder
-                break;
-            case "Update Employee Manager":
-                // Placeholder
-                break;
+            // case "View All Employees by Manager":
+            //     // Placeholder
+            //     break;
             case "View All Roles":
-                // Placeholder
-                break;
-            case "Add Role":
-                create("Role");
-                break;
-            case "Remove Role":
                 // Placeholder
                 break;
             case "View All Departments":
                 // Placeholder
+                break;                
+            case "Add Employee":
+                create("Employee");
                 break;
+            case "Add Role":
+                create("Role");
+                break;  
             case "Add Department":
                 create("Department");
                 // Placeholder
+                break;                              
+            case "Update Employee Role":
+                 // Placeholder
                 break;
-            case "Remove Department":
-                // Placeholder
-                break;
-            case "Update Department":
+            case "Update Employee Manager":
                 // Placeholder
                 break;
             case "View Department Budget":
@@ -154,6 +140,7 @@ function create(answer) {
         });
     } else if(answer === "Role") {
         renderChoices(function(result) {
+            console.log(result);
             inquirer.prompt([
                 {
                     type: "list",
@@ -173,7 +160,10 @@ function create(answer) {
                 }
             ]
             ).then(function(answer) {
-                let query = `INSERT INTO role (title, salary, department_id) VALUES ("${answer.roleName}", ${answer.salary}, ${answer.deptName});`;
+                console.log(answer);
+                let query = 
+                `INSERT INTO role (title, salary, department_id) 
+                VALUES ("${answer.roleName}", ${answer.salary}, ${answer.deptName.index});`;
                 connection.query(query, function(err, res) {
                     if(err) throw err;
                     askQuestions();
@@ -181,6 +171,6 @@ function create(answer) {
             });
         });
     } else if(answer === "Employee") {
-        
+
     }
 }
