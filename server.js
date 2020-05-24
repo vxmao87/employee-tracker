@@ -70,19 +70,19 @@ connection.connect(function(err) {
     askQuestions();
 });
 
-function renderChoices(cb) {
-    let query = "SELECT id, name FROM department;";
-    connection.query(query, function(err, res) {
-        if(err) throw err;
-        console.log(res);
-        var choiceArray = [];
-        for(var i = 0; i < res.length; i++) {
-            choiceArray.push(
-                {id: res[i].id, name: res[i].name});
-        }
-        cb(choiceArray);
-    });
-}
+// function renderChoices(cb) {
+//     let query = "SELECT id, name FROM department;";
+//     connection.query(query, function(err, res) {
+//         if(err) throw err;
+//         console.log(res);
+//         var choiceArray = [];
+//         for(var i = 0; i < res.length; i++) {
+//             choiceArray.push(
+//                 {id: res[i].id, name: res[i].name});
+//         }
+//         cb(choiceArray);
+//     });
+// }
 
 function askQuestions() {
     inquirer.prompt(mainMenu).then(function(answer) {
@@ -93,9 +93,6 @@ function askQuestions() {
             case "View All Employees by Department":
                 // Placeholder
                 break;
-            // case "View All Employees by Manager":
-            //     // Placeholder
-            //     break;
             case "View All Roles":
                 // Placeholder
                 break;
@@ -103,13 +100,13 @@ function askQuestions() {
                 // Placeholder
                 break;                
             case "Add Employee":
-                create("Employee");
+                add("Employee");
                 break;
             case "Add Role":
-                create("Role");
+                add("Role");
                 break;  
             case "Add Department":
-                create("Department");
+                add("Department");
                 // Placeholder
                 break;                              
             case "Update Employee Role":
@@ -129,7 +126,7 @@ function askQuestions() {
     });
 }
 
-function create(answer) {
+function add(answer) {
     if(answer === "Department") {
         inquirer.prompt(createDeptQs).then(function(answer) {
             let query = `INSERT INTO department (name) VALUES ("${answer.deptName}");`;
@@ -139,14 +136,51 @@ function create(answer) {
             });
         });
     } else if(answer === "Role") {
-        renderChoices(function(result) {
-            console.log(result);
+        // renderChoices(function(result) {
+        //     console.log(result);
+        //     inquirer.prompt([
+        //         {
+        //             type: "list",
+        //             name: "deptName",
+        //             message: "Which department will this new role be a part of?",
+        //             choices: result
+        //         },
+        //         {
+        //             type: "input",
+        //             name: "roleName",
+        //             message: "What would you like to name the new role?"
+        //         },
+        //         {
+        //             type: "input",
+        //             name: "salary",
+        //             message: "What is the salary of this role?"
+        //         }
+        //     ]
+        //     ).then(function(answer) {
+        //         console.log(answer);
+        //         let query = 
+        //         `INSERT INTO role (title, salary, department_id) 
+        //         VALUES ("${answer.roleName}", ${answer.salary}, ${answer.deptName.index});`;
+        //         connection.query(query, function(err, res) {
+        //             if(err) throw err;
+        //             askQuestions();
+        //         });
+        //     });
+        // });
+        let query = `SELECT id, name FROM department`;
+        connection.query(query, function(err, res) {
+            if(err) throw err;
             inquirer.prompt([
                 {
                     type: "list",
                     name: "deptName",
                     message: "Which department will this new role be a part of?",
-                    choices: result
+                    choices: res.map(dept => {
+                        return {
+                            name: dept.name,
+                            value: dept.id
+                        }
+                    })
                 },
                 {
                     type: "input",
@@ -158,19 +192,48 @@ function create(answer) {
                     name: "salary",
                     message: "What is the salary of this role?"
                 }
-            ]
-            ).then(function(answer) {
-                console.log(answer);
-                let query = 
-                `INSERT INTO role (title, salary, department_id) 
-                VALUES ("${answer.roleName}", ${answer.salary}, ${answer.deptName.index});`;
-                connection.query(query, function(err, res) {
-                    if(err) throw err;
-                    askQuestions();
-                });
+            ]).then(function(answer) {
+                connection.query("INSERT INTO role SET ?",
+                {
+                    title: answer.roleName,
+                    salary: answer.salary,
+                    department_id: answer.deptName
+                },
+                function(err, res) {
+                        if(err) throw err;
+                        askQuestions();
+                    }
+                );
             });
         });
     } else if(answer === "Employee") {
+        connection.query("SELECT id, title FROM role", function(err, res) {
+            if(err) throw err;
+            inquirer.prompt([
+                {
+                    type: "input",
+                    name: "firstName",
+                    message: "What is the employee's first name?"
+                },
+                {
+                    type: "input",
+                    name: "lastName",
+                    message: "What is the employee's last name?"
+                },
+                {
+                    type: "list",
+                    name: "role",
+                    message: "What role would you like to assign this employee?",
+                    choices: res.map(role => {
+                        return {
+                            name: role.title,
+                            id: role.id
+                        }
+                    })
+                }
+            ]).then(function(answer) {
 
+            });
+        });
     }
 }
