@@ -184,7 +184,7 @@ function add(answer) {
                 function(err, res) {
                     if (err) throw err;
                     askQuestions();
-                })
+                });
             });
         });
     }
@@ -198,7 +198,7 @@ function view(answer) {
             askQuestions();
         });
     } else if(answer === "Role") {
-        var query = "SELECT role.id, role.title, role.salary FROM role ";
+        var query = "SELECT role.id, role.title, role.salary, department.name AS department FROM role ";
         query += "LEFT JOIN department ON role.department_id = department.id";
         connection.query(query, function(err, res) {
             if (err) throw err;
@@ -206,7 +206,7 @@ function view(answer) {
             askQuestions();
         });
     } else if(answer === "Employee") {
-        var query = "SELECT employee.id, employee.first_name, employee.last_name, employee.role_id FROM employee ";
+        var query = "SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee ";
         query += "LEFT JOIN role ON employee.role_id = role.id ";
         connection.query(query, function(err, res) {
             if (err) throw err;
