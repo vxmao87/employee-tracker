@@ -158,7 +158,7 @@ function add(answer) {
                 {
                     type: "input",
                     name: "manager",
-                    message: "Who would you like to assign as this employee's manager?"
+                    message: "What is the ID number of this employee's manager?"
                 }
             ]).then(function(answer) {
                 connection.query("INSERT INTO employee SET ?",

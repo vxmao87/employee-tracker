@@ -23,12 +23,12 @@ VALUES("Keri", "Wilson", 3, null);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES("Greg", "Garcia", 4, 4);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES("Alan", "Cho", 4, null);
+VALUES("Alan", "Cho", 4, 4);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES("Lily", "Tran", 5, null);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES("David", "Liu", 6, null);
+VALUES("David", "Liu", 6, 7);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES("Fred", "Anderson", 6, 7);
 
