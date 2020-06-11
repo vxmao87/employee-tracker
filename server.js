@@ -24,15 +24,12 @@ const mainMenu = [
         message: "What would you like to do today?",
         choices: [
             "View All Employees",
-            "View All Employees by Department",
-            "View All Employees by Manager",
             "View All Departments",
             "View All Roles",               
             "Add Employee",
             "Add Role",
             "Add Department",            
             "Update Employee Role",
-            "View Department Budget",
             "Exit"
         ]
     }
@@ -63,10 +60,7 @@ function askQuestions() {
                 break;
             case "View All Departments":
                 view("Department");
-                break;
-            case "View All Employees by Department":
-                // Placeholder
-                break;                  
+                break;              
             case "Add Employee":
                 add("Employee");
                 break;
@@ -75,16 +69,9 @@ function askQuestions() {
                 break;  
             case "Add Department":
                 add("Department");
-                // Placeholder
                 break;                              
             case "Update Employee Role":
-                 // Placeholder
-                break;
-            case "Update Employee Manager":
-                // Placeholder
-                break;
-            case "View Department Budget":
-                // Placeholder
+                 update("Role");
                 break;
             case "Exit":
                 console.log("Goodbye! See you again soon!");
@@ -206,12 +193,92 @@ function view(answer) {
             askQuestions();
         });
     } else if(answer === "Employee") {
-        var query = "SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee ";
+        var query = "SELECT employee.id, employee.first_name, employee.last_name, ";
+        query += "role.title, role.salary, department.name AS department, ";
+        query += "CONCAT (manager.first_name, ' ', manager.last_name) AS manager FROM employee ";
         query += "LEFT JOIN role ON employee.role_id = role.id ";
+        query += "LEFT JOIN department ON role.department_id = department.id ";
+        query += "LEFT JOIN employee manager ON manager.id = employee.manager_id;";
         connection.query(query, function(err, res) {
             if (err) throw err;
             console.table(res);
             askQuestions();
+        });
+    }
+}
+
+function update(answer) {
+    if(answer === "Role") {
+        // connection.query("SELECT id, title FROM role", function(err, roleData) {
+        //     if (err) throw err;
+        //     inquirer.prompt([
+        //         {
+        //             type: "input",
+        //             name: "employeeFirst",
+        //             message: "What is the first name of the employee would you like to update the role of?"
+        //         },
+        //         {
+        //             type: "input",
+        //             name: "employeeLast",
+        //             message: "What is the last name of the employee would you like to update the role of?"
+        //         },
+        //         {
+        //             type: "list",
+        //             name: "newRole",
+        //             message: "What role would you like to assign to this employee?",
+        //             choices: roleData.map(role => {
+        //                 return {
+        //                     name: role.title,
+        //                     id: role.id
+        //                 }
+        //             })
+        //         }
+        //     ]).then(function(response) {
+        //         connection.query("UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?",
+        //         [response.newRole, response.employeeFirst, response.employeeLast],
+        //         function(err) {
+        //             if (err) throw err;
+        //             askQuestions();
+        //         });
+        //     });
+        // });
+        connection.query("SELECT id, first_name, last_name FROM employee", function(err1, employeeData) {
+            if (err1) throw err1;
+            connection.query("SELECT id, title FROM role", function(err2, roleData) {
+                if (err2) throw err2;
+                inquirer.prompt([
+                    {
+                        type: "list",
+                        name: "employeeChange",
+                        message: "Which employee's role would you like to update?",
+                        choices: employeeData.map(employee => {
+                            return {
+                                first_name: employee.first_name,
+                                last_name: employee.last_name,
+                                id: employee.id
+                            }
+                        })
+                    },
+                    {
+                        type: "list",
+                        name: "newRole",
+                        message: "What new role would you like to assign this employee?",
+                        choices: roleData.map(role => {
+                            return {
+                                name: role.title,
+                                id: role.id
+                            }
+                        })
+                    }
+                ]).then(function(answer) {
+                    connection.query("UPDATE employee SET role_id = ? WHERE id = ?", 
+                    [answer.newRole, answer.employeeChange],
+                    function(err) {
+                        if (err) throw err;
+                        askQuestions();
+                    })
+                });
+            });
         });
     }
 }
