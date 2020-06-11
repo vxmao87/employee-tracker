@@ -151,7 +151,7 @@ function add(answer) {
                     choices: res.map(role => {
                         return {
                             name: role.title,
-                            id: role.id
+                            value: role.id
                         }
                     })
                 },
@@ -209,43 +209,10 @@ function view(answer) {
 
 function update(answer) {
     if(answer === "Role") {
-        // connection.query("SELECT id, title FROM role", function(err, roleData) {
-        //     if (err) throw err;
-        //     inquirer.prompt([
-        //         {
-        //             type: "input",
-        //             name: "employeeFirst",
-        //             message: "What is the first name of the employee would you like to update the role of?"
-        //         },
-        //         {
-        //             type: "input",
-        //             name: "employeeLast",
-        //             message: "What is the last name of the employee would you like to update the role of?"
-        //         },
-        //         {
-        //             type: "list",
-        //             name: "newRole",
-        //             message: "What role would you like to assign to this employee?",
-        //             choices: roleData.map(role => {
-        //                 return {
-        //                     name: role.title,
-        //                     id: role.id
-        //                 }
-        //             })
-        //         }
-        //     ]).then(function(response) {
-        //         connection.query("UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?",
-        //         [response.newRole, response.employeeFirst, response.employeeLast],
-        //         function(err) {
-        //             if (err) throw err;
-        //             askQuestions();
-        //         });
-        //     });
-        // });
-        connection.query("SELECT id, first_name, last_name FROM employee", function(err1, employeeData) {
-            if (err1) throw err1;
-            connection.query("SELECT id, title FROM role", function(err2, roleData) {
-                if (err2) throw err2;
+        connection.query("SELECT id, CONCAT(first_name, ' ', last_name) AS employeeName FROM employee", function(errEmployee, employeeData) {
+            if (errEmployee) throw errEmployee;
+            connection.query("SELECT id, title FROM role", function(errRole, roleData) {
+                if (errRole) throw errRole;
                 inquirer.prompt([
                     {
                         type: "list",
@@ -253,9 +220,8 @@ function update(answer) {
                         message: "Which employee's role would you like to update?",
                         choices: employeeData.map(employee => {
                             return {
-                                first_name: employee.first_name,
-                                last_name: employee.last_name,
-                                id: employee.id
+                                name: employee.employeeName,
+                                value: employee.id
                             }
                         })
                     },
@@ -266,7 +232,7 @@ function update(answer) {
                         choices: roleData.map(role => {
                             return {
                                 name: role.title,
-                                id: role.id
+                                value: role.id
                             }
                         })
                     }
@@ -276,7 +242,7 @@ function update(answer) {
                     function(err) {
                         if (err) throw err;
                         askQuestions();
-                    })
+                    });
                 });
             });
         });
