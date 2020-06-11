@@ -32,7 +32,7 @@ When running the app, the user has the option to view or add departments, roles 
 
 ![Image](Assets/img/employee-tracker.png)
 
-You may also access a video demonstration of the application [here]().
+You may also access a video demonstration of the application [here](https://drive.google.com/file/d/1INw87gGKdJhlE6KxE0wolYMKzljp8q-C/view?usp=sharing).
 
 ## Questions
 
